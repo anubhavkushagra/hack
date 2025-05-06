@@ -1,0 +1,105 @@
+$n3 set X 250.0
+
+$n3 set Y_250.0
+
+$n3 set Z 0.0
+
+$ns at 0.0 "$n0 setdest 400.0 300.0
+
+50.0"
+
+$ns at 0.0 "$n1 setdest 50.0 100.0
+
+20.0"
+
+$ns at 0.0 "$n2 setdest 75.0 180.0
+
+5.0"
+
+$ns at 0.0 "$n3 setdest 100.0 100.0
+
+25.0"
+
+set tcp1 [new Agent/TCP]
+
+$ns attach-agent $n0 $tcp1
+
+set tcp2 [new Agent/TCP]
+
+$ns attach-agent $n2 $tcp2
+
+set sink1 [new Agent/TCPSink]
+
+$ns attach-agent $n1 $sink1
+
+set sink2 [new Agent/TCPSink]
+
+$ns attach-agent $n3 $sink2
+
+set cbr1 [new Application/Traffic/CBR]
+
+$cbr1 attach-agent $tcp1
+
+set cbr2 [new Application/Traffic/CBR]
+
+$cbr2 attach-agent $tcp2
+
+$ns connect $tcp1 $sink1
+
+set cbr1 [new Application/Traffic/CBR]
+
+$cbr1 attach-agent $tcp1
+
+set cbr2 [new Application/Traffic/CBR]
+
+$cbr2 attach-agent $tcp2
+
+$ns connect $tcp1 $sink1
+
+$ns connect $tcp2 $sink2
+
+proc End {} {
+
+global ns nt na
+
+$ns flush-trace
+
+close $na
+
+close $nt exec nam Lab4.nam & }
+
+$ns at 0.0 "$cbr1 start"
+
+$ns at 0.0 "$cbr2 start"
+
+$ns at 10.0 "End"
+
+$ns run
+
+46
+
+AWK Code
+
+BEGIN{Num_of_pts=0;}
+
+{ if if ($1 == "r" && $3 == "_1_" && $4 ==
+
+"AGT" && $7 == "tcp")
+
+{
+
+Num_of_pkts = Num_of_pkts + $8;
+
+}
+
+}
+
+END{
+
+Throughput = Num_of_pkts* 8/$2
+
+printf("\n\n\tThroughput =
+
+%fbpms\n\n\n", Throughput);
+
+}
