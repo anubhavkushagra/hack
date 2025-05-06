@@ -1,3 +1,74 @@
+set ns [new Simulator]
+
+set na [open Lab4.nam w]
+
+$ns namtrace-all-wireless $na 500 500
+
+set nt [open Lab4.tr w]
+
+$ns trace-all $nt
+
+set topo [new Topography]
+
+$topo load_flatgrid 500 500
+
+$ns node-config -adhocRouting DSDV
+
+$ns node-config -IIType LL
+
+$ns node-config -macType
+
+Mac/802_11
+
+$ns node-config-ifqType
+
+Queue/DropTail
+
+$ns node-config-ifqLen 50
+
+$ns node-config -phy Type
+
+Phy/WirelessPhy
+
+$ns node-config -channel Type
+
+Channel/Wireless Channel
+
+$ns node-config -propType Propagation/TwoRayGround
+
+$ns node-config -antType
+
+Antenna/OmniAntenna
+
+$ns node-config -topolnstance $topo
+
+$ns node-config -agentTrace ON
+
+$ns node-config -router Trace ON
+
+create-god 4
+
+set n0 [$ns node]
+
+set n1 [$ns node]
+
+set n2 [$ns node]
+
+set n1 [$ns node]
+
+set n2 [$ns node]
+
+set n3 [$ns node]
+
+$n0 set X 250.0
+
+$n0 set Y 250.0
+
+$n0 set Z 0.0
+
+$n1 set X 200.0
+
+$n1 set Y 250.0
 $n3 set X 250.0
 
 $n3 set Y_250.0
