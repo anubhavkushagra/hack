@@ -1,0 +1,76 @@
+7. To Create scenario and study the performance of token ring protocols through simulation (Using Ring topology)
+
+# Create Simulator set ns [new Simulator]
+
+# Define trace file and nam file set tracefile [open tokenring.tr w] set namfile [open tokenring.nam w] Sns trace-all Stracefile Sns namtrace-all Snamfile
+
+# Define number of nodes in the ring
+
+set num_nodes 5
+
+#Create nodes for {set i 0} {$i < $num_nodes} {incr i} { set n($i) [$ns node] }
+
+# Connect nodes in ring (n0-n1, n1-n2, n4-n0)
+
+for {set i 0} {$i < $num_nodes} {incr i} { set next [expr ($i + 1) % $num_nodes] $ns duplex-link $n($i) $n($next) 1Mb 10ms Drop Tail }
+
+# Setup queue monitoring (optional) for {set i 0} {$i < $num_nodes} {incr i} { set next [expr ($i + 1) % $num_nodes] $ns queue-limit $n($i) $n($next) 50 }
+
+# Define application (token passing simulation)
+
+# A node will send a packet only when it holds the token
+
+proc send_token {ns src dst time) {
+
+set udp [new Agent/UDP] set null [new Agent/Null] $ns attach-agent $src $udp $ns attach-agent $dst $null $ns connect $udp Snull
+
+set cbr [new Application/Traffic/CBR] $cbr set packetSize_512 $cbr set interval_0.1
+
+$cbr attach-agent $udp
+
+#Token passing simulated by scheduled send
+ns at $time "$cbr start"
+
+$ns at [expr $time + 0.2] "$cbr stop"
+
+#Detach agents to simulate token release
+
+$ns at [expr $time + 0.21] "$ns detach-agent $src $udp" $ns at [expr $time + 0.21] "$ns detach-agent $dst $null"
+
+}
+
+# Simulate token passing around the ring
+
+set time 1.0
+
+for {set i 0} {$i < $num_nodes} {incr i} {
+
+set src $n($i)
+
+set dst Sn([expr ($i + 1) % $num_nodes]) }
+
+send_token $ns $src $dst $time
+
+set time [expr $time + 0.5] ;# delay between token transfers
+
+#Finish simulation
+
+Sns at [expr Stime + 1.0] "finish"
+
+proc finish {} {
+
+global ns tracefile namfile
+
+$ns flush-trace
+
+close Stracefile
+
+close Snamfile
+
+exec nam tokenring.nam &
+
+exit 0 }
+
+# Run simulation
+
+Sns run
