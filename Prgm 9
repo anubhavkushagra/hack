@@ -1,0 +1,61 @@
+To Create scenario and study the performance of token ring protocols through simulation (Using Star Topology)
+
+#Token Ring Simulation using Star Topology in NS2
+
+# Create a simulator object set ns [new Simulator]
+
+# Open trace file set tracefile [open tokenring.tr w] $ns trace-all $tracefile
+
+#Open NAM trace file set namfile [open tokenring.nam w] $ns namtrace-all $namfile
+
+# Define number of nodes set num_nodes 5
+
+# Create node array for {set i 0} {$i < $num_nodes) {incr i} { set n($i) [$ns node] }
+
+# Create central hub node set hub [$ns node]
+
+# Create star topology (connect each node to the central hub) for {set i 0} {$i < $num_nodes) {incr i} { $ns duplex-link $n($i) $hub 1Mb 10ms Drop Tail }
+
+# Function to simulate token passing in a logical ring proc pass_token (ns n current next delay} {
+
+set pkt [new Agent/UDP]
+
+set null [new Agent/Null] $ns attach-agent $n($current) $pkt $ns attach-agent $n($next) $null $ns connect $pkt $null
+
+set app [new Application/Traffic/CBR] $app attach-agent $pkt $app set packetSize_512
+
+$app set interval_0.5
+
+$ns at $delay "$app start"$ns at [expr $delay + 0.2] "$app stop"
+
+}
+
+# Schedule token passing in a logical ring through star topology
+
+set token_delay 0.5
+
+set next [expr ($i + 1) % $num_nodes]
+
+}
+
+for (set i 0) {$i < $num_nodes} {incr i} { pass_token $ns n $i $next $token_delay set token_delay [expr $token_delay + 1.0]
+
+# Finish simulation
+
+$ns at [expr $token_delay + 1.0] "finish"
+
+proc finish {} {
+
+global ns tracefile namfile
+
+$ns flush-trace
+
+close $tracefile
+
+close $namfile
+
+exec nam tokenring.nam & exit 0 }
+
+# Run the simulation
+
+$ns run
